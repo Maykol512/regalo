@@ -13,11 +13,9 @@
             font-family: 'Montserrat', sans-serif;
             height: 100vh;
             width: 100vw;
-            overflow: hidden; /* IMPORTANTE: Bloquea el scroll */
+            overflow: hidden;
             background-color: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            overscroll-behavior: none;
         }
 
         /* --- INTRO --- */
@@ -25,7 +23,7 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background-color: #000;
-            z-index: 200;
+            z-index: 100;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -37,203 +35,330 @@
             font-size: 80px;
             color: #ff0000;
             animation: beat 1.2s infinite ease-in-out;
+            margin-bottom: 30px;
             cursor: pointer;
-            z-index: 202;
+            z-index: 102;
+            filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.9));
             -webkit-tap-highlight-color: transparent;
         }
 
         .intro-text {
             color: #fff;
             font-family: 'Great Vibes', cursive;
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             margin-bottom: 20px;
             text-align: center;
         }
+        
+        .flower {
+            position: absolute;
+            top: -50px;
+            font-size: 20px;
+            animation: fall linear forwards;
+            z-index: 90;
+        }
 
-        /* --- ESCENA PRINCIPAL (FLEXBOX CENTRADO) --- */
+        /* --- ESCENA PRINCIPAL --- */
         #main-scene {
             opacity: 0;
             transition: opacity 2s ease;
             width: 100%;
             height: 100%;
-            position: relative;
             display: flex;
-            flex-direction: column;
-            justify-content: space-evenly; /* Distribuye espacio equitativamente */
+            flex-direction: column; /* Organiza verticalmente */
+            justify-content: center;
             align-items: center;
+            position: relative;
+            background-color: #000;
         }
 
-        /* FONDO */
-        #slideshow-container, .overlay, .heart-bg {
+        /* FONDO Y SLIDESHOW */
+        #slideshow-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; 
+            overflow: hidden;
+            opacity: 0; 
+            transition: opacity 1s ease;
+        }
+
+        .slide-img {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out; 
+            will-change: opacity;
+        }
+
+        .slide-img.active { opacity: 1; }
+
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.65);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .heart-bg {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
+            z-index: 2;
         }
-        #slideshow-container { z-index: 0; opacity: 0; transition: opacity 1s ease; }
-        .slide-img { width: 100%; height: 100%; object-fit: cover; position: absolute; opacity: 0; transition: opacity 0.8s ease; }
-        .slide-img.active { opacity: 1; }
-        .overlay { background: rgba(0, 0, 0, 0.6); z-index: 1; }
-        .heart-bg { z-index: 2; }
 
-        /* --- 1. FRASES (ARRIBA) --- */
+        .falling-heart {
+            position: absolute;
+            top: -10vh;
+            animation: fall linear forwards;
+            text-shadow: 0 0 5px rgba(255, 100, 100, 0.8);
+        }
+
+        /* --- FRASES (ARRIBA) --- */
         #lyrics-wrapper {
-            width: 90%;
-            height: 60px; /* Altura fija para reservar espacio */
+            position: absolute;
+            top: 8%; /* Fijo arriba */
+            width: 100%;
             display: flex;
-            align-items: center;
             justify-content: center;
             z-index: 20;
-            margin-top: 10px;
+            pointer-events: none;
         }
 
         #lyrics {
             text-align: center;
             color: #fff;
-            font-family: 'Great Vibes', cursive;
-            font-size: 1.8rem;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-            opacity: 0;
-            transition: opacity 0.8s ease;
+            font-family: 'Great Vibes', cursive; /* Fuente más bonita */
+            font-size: 2rem; /* Letra grande y legible */
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 2px 2px 4px rgba(0,0,0,0.8);
+            transition: opacity 0.8s ease-in-out, transform 0.8s ease;
+            opacity: 0; 
+            transform: translateY(-10px);
+            max-width: 90%;
+            line-height: 1.2;
         }
-        #lyrics.visible { opacity: 1; }
 
-        /* --- 2. CARTA (CENTRO - TAMAÑO MÓVIL) --- */
+        #lyrics.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- CARTA (CENTRO) --- */
         .card-container {
             position: relative;
             z-index: 10;
-            perspective: 1000px;
-            width: 280px;  /* Ancho fijo compacto */
-            height: 400px; /* Alto fijo compacto para que quepa */
+            perspective: 1500px;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
+            /* Ajuste para que no choque con el texto de arriba */
+            margin-top: 20px; 
+            transform: scale(0.9); /* Un poco más pequeña por defecto para móviles */
+        }
+
+        /* Ajuste responsivo para celulares pequeños */
+        @media (max-height: 700px) {
+            .card-container {
+                transform: scale(0.8);
+                margin-top: 10px;
+            }
+            #lyrics { font-size: 1.6rem; }
         }
 
         .card {
-            width: 100%;
-            height: 100%;
+            width: 85vw; 
+            max-width: 320px; /* Un poco más angosta para que sea compacta */
+            height: 480px;    /* Altura ajustada */
+            background-color: transparent;
+            border-radius: 15px;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .card-container.open .card { transform: rotateY(180deg); }
+        .card-container.open .card {
+            transform: rotateY(180deg);
+        }
 
         .card-face {
             position: absolute;
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            border-radius: 15px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
             overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* FRENTE CARTA */
+        /* FRENTE */
         .card-front {
-            background: linear-gradient(135deg, #32000a, #140005);
-            border: 2px solid #d4af37;
+            background: linear-gradient(135deg, rgba(50, 0, 10, 0.95), rgba(20, 0, 5, 0.98));
+            backdrop-filter: blur(10px);
+            color: #fff;
+            border: 3px solid #d4af37;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
         }
+
+        .card-front::after {
+            content: '';
+            position: absolute;
+            top: 10px; left: 10px; right: 10px; bottom: 10px;
+            border: 2px dotted rgba(212, 175, 55, 0.6);
+            border-radius: 15px;
+            pointer-events: none;
+        }
+
         .title-main {
             font-family: 'Parisienne', cursive;
-            font-size: 2.8rem;
+            font-size: 3.5rem;
             color: #d4af37;
-            text-align: center;
-            line-height: 1;
             margin: 0;
+            text-shadow: 2px 2px 8px rgba(212, 175, 55, 0.5);
+            text-align: center;
+            line-height: 1.1;
         }
-        .subtitle { font-size: 0.9rem; color: #e0c0c0; letter-spacing: 2px; margin-top: 10px; }
-        .front-heart-hint { font-size: 2.5rem; margin-top: 30px; animation: beat 1.5s infinite; }
 
-        /* DORSO CARTA */
-        .card-back {
-            background: #fffcfc;
-            transform: rotateY(180deg);
-            border: 3px solid #8e0e00;
-            padding: 15px;
+        .subtitle {
+            font-size: 1rem;
+            color: #e0c0c0;
+            margin-top: 15px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 300;
         }
+
+        .front-heart-hint {
+            font-size: 3rem;
+            color: #ff0000;
+            margin-top: 40px;
+            animation: beat 1.5s infinite ease-in-out;
+            filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.8));
+        }
+
+        /* DORSO */
+        .card-back {
+            background: linear-gradient(to bottom, #fffcfc, #fff0f0);
+            transform: rotateY(180deg);
+            padding: 20px;
+            box-sizing: border-box;
+            border: 4px solid #8e0e00;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
         .photo-frame {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            padding: 2px;
+            padding: 3px;
             background: linear-gradient(45deg, #d4af37, #8e0e00);
-            margin-bottom: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
             flex-shrink: 0;
         }
-        .photo-frame img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid #fff; }
-        
+
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+        }
+
+        .fancy-divider {
+            height: 2px;
+            width: 50%;
+            background: linear-gradient(to right, transparent, #8e0e00, transparent);
+            margin: 8px auto 12px auto;
+            opacity: 0.7;
+        }
+
         .message-content h2 {
             font-family: 'Great Vibes', cursive;
             color: #8e0e00;
-            font-size: 1.6rem;
-            margin: 0 0 5px 0;
-        }
-        .message-body {
-            font-size: 0.75rem; /* Letra pequeña para que quepa texto */
-            color: #333;
+            font-size: 1.8rem;
+            margin: 0 0 8px 0;
             text-align: center;
-            overflow-y: auto; /* Scroll SOLO DENTRO de la carta si es necesario */
-            flex-grow: 1;
-            padding: 0 5px;
-            line-height: 1.3;
         }
+
+        .message-body {
+            color: #4a4a4a;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+            overflow-y: auto;
+            max-height: 230px;
+            padding: 0 5px;
+        }
+
+        .message-body p { margin-bottom: 10px; }
+        
         .signature {
             font-family: 'Great Vibes', cursive;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             color: #8e0e00;
+            margin-top: 10px;
             text-align: right;
-            margin-top: 5px;
+            display: block;
+            width: 100%;
         }
 
-        /* --- 3. BOTÓN MISTERIOSO (ABAJO) --- */
-        #mystery-wrapper {
-            height: 60px; /* Reserva espacio abajo */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            margin-bottom: 10px;
-        }
-
+        /* --- BOTÓN MISTERIOSO (ABAJO) --- */
         #mystery-btn {
-            width: 50px;
-            height: 50px;
+            position: absolute;
+            bottom: 5%; /* Fijo abajo */
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            width: 55px;
+            height: 55px;
             background: linear-gradient(45deg, #d4af37, #f9d976);
             border-radius: 50%;
             border: 2px solid #fff;
             color: #5c4300;
             font-family: 'Parisienne', cursive;
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: bold;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
+            z-index: 100;
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
-            transform: scale(0);
-            transition: transform 0.4s ease;
-            pointer-events: none;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.27);
+            -webkit-tap-highlight-color: transparent;
+            opacity: 0;
+            pointer-events: none; 
         }
 
         #mystery-btn.show {
-            transform: scale(1);
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
             pointer-events: auto;
             animation: pulseBtn 2s infinite;
         }
 
         @keyframes pulseBtn {
             0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+            70% { box-shadow: 0 0 0 15px rgba(212, 175, 55, 0); }
             100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
         }
-        @keyframes beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        @keyframes fall { 100% { transform: translateY(110vh); opacity: 0; } }
-        .flower { position: absolute; animation: fall 4s linear forwards; }
-        .falling-heart { position: absolute; top: -10vh; animation: fall 4s linear forwards; }
+
+        @keyframes beat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -248,8 +373,9 @@
     </div>
 
     <div id="main-scene">
-        <div id="slideshow-container"></div>
-        <div class="overlay"></div>
+        <div id="slideshow-container">
+            <div class="overlay"></div> 
+        </div>
         <div class="heart-bg" id="main-bg"></div>
         
         <div id="lyrics-wrapper">
@@ -266,15 +392,23 @@
 
                 <div class="card-face card-back">
                     <div class="photo-frame">
-                        <img src="https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?q=80&w=300&auto=format&fit=crop" alt="Foto">
+                        <img src="https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?q=80&w=300&auto=format&fit=crop" alt="Foto Juntos">
                     </div>
                     
                     <div class="message-content">
                         <h2>Para ti, mi amor</h2>
+                        <div class="fancy-divider"></div>
+                        
                         <div class="message-body">
-                            <p>No sabía cómo empezar, porque las palabras se quedan cortas.</p>
-                            <p>Desde que llegaste, mis días tienen otro color. Eres mi casualidad favorita.</p>
-                            <p>Hoy celebro tenerte en mi vida. ¡Te quiero muchísimo!</p>
+                            <p>
+                                No sabía muy bien cómo empezar esta carta, porque a veces siento que las palabras se quedan cortas para explicar todo lo que me haces sentir.
+                            </p>
+                            <p>
+                                Desde que llegaste, mis días tienen otro color y mi corazón tiene un ritmo diferente. Eres mi casualidad favorita y mi certeza más bonita.
+                            </p>
+                            <p>
+                                Hoy celebro tenerte en mi vida. ¡Te quiero muchísimo!
+                            </p>
                             <span class="signature">Con todo mi amor.</span>
                         </div>
                     </div>
@@ -282,9 +416,7 @@
             </div>
         </div>
 
-        <div id="mystery-wrapper">
-            <button id="mystery-btn" onclick="goToSurprise()">?</button>
-        </div>
+        <button id="mystery-btn" onclick="goToSurprise()">?</button>
     </div>
 
     <script>
@@ -296,86 +428,99 @@
         const lyricsDiv = document.getElementById('lyrics');
         const mysteryBtn = document.getElementById('mystery-btn');
         
+        let flowersInterval;
+        let heartsInterval;
+        let slideshowInterval;
         let isCardOpen = false;
         let hasBackgroundStarted = false;
 
+        // --- FRASES DE AMOR ---
         const phrasesData = [
             "Eres mi persona favorita",
             "Juntos es mi lugar favorito",
             "Tu sonrisa ilumina mi vida",
             "Gracias por existir",
             "Te quiero con todo mi corazón",
-            "Cada día contigo es un regalo"
+            "Cada día contigo es un regalo",
+            "Eres lo mejor que me pasó",
+            "Mi corazón es tuyo",
+            "Siempre cuidaré de ti"
         ];
 
-        // IMÁGENES SLIDESHOW
+        // PRELOAD
+        function preloadImages() {
+            for (let i = 1; i <= 9; i++) {
+                const img = new Image();
+                img.src = i + '.png';
+            }
+        }
+        preloadImages(); 
+
         function initSlideshow() {
             for (let i = 1; i <= 9; i++) {
                 let img = document.createElement('img');
                 img.src = i + '.png'; 
                 img.classList.add('slide-img');
                 if (i === 1) img.classList.add('active'); 
-                slideshowContainer.appendChild(img);
+                slideshowContainer.insertBefore(img, slideshowContainer.firstChild);
             }
         }
         initSlideshow();
 
-        // FLOWERS INTRO
-        let flowersInterval = setInterval(() => {
-            const f = document.createElement('div');
-            f.className = 'flower';
-            f.innerText = ['🌹','🌻','🌷'][Math.floor(Math.random()*3)];
-            f.style.left = Math.random()*100+'vw';
-            f.style.fontSize = (Math.random()*15+15)+'px';
-            f.style.top = '-50px';
-            introScreen.appendChild(f);
-            setTimeout(()=>f.remove(), 4000);
-        }, 300);
+        // INTRO
+        function createFlower() {
+            const flower = document.createElement('div');
+            flower.classList.add('flower');
+            const flowerTypes = ['🌹', '🌸', '🌺', '🌻', '🌷']; 
+            flower.innerText = flowerTypes[Math.floor(Math.random() * flowerTypes.length)];
+            flower.style.left = Math.random() * 100 + 'vw';
+            flower.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            flower.style.fontSize = (Math.random() * 15 + 15) + 'px';
+            introScreen.appendChild(flower);
+            setTimeout(() => { flower.remove(); }, 5000);
+        }
+        flowersInterval = setInterval(createFlower, 300);
 
         function startExperience() {
             introScreen.style.opacity = '0';
             mainScene.style.opacity = '1';
             setTimeout(() => {
                 introScreen.style.display = 'none';
-                clearInterval(flowersInterval);
+                clearInterval(flowersInterval); 
             }, 1500);
         }
 
+        // SLIDESHOW
         function startSlideshowLoop() {
             slideshowContainer.style.opacity = '1'; 
             const slides = document.querySelectorAll('.slide-img');
-            let idx = 0;
-            setInterval(() => {
-                slides[idx].classList.remove('active');
-                idx = (idx + 1) % slides.length;
-                slides[idx].classList.add('active');
+            let currentIndex = 0;
+            slideshowInterval = setInterval(() => {
+                slides[currentIndex].classList.remove('active');
+                currentIndex = (currentIndex + 1) % slides.length;
+                slides[currentIndex].classList.add('active');
             }, 2000); 
         }
 
+        // CONTROL DE FRASES
         function startPhrasesLoop() {
-            let idx = 0;
-            function next() {
+            let index = 0;
+            
+            function showNextPhrase() {
                 lyricsDiv.classList.remove('visible');
+                
                 setTimeout(() => {
-                    lyricsDiv.innerText = phrasesData[idx];
+                    lyricsDiv.innerText = phrasesData[index];
                     lyricsDiv.classList.add('visible');
-                    idx = (idx + 1) % phrasesData.length;
+                    index = (index + 1) % phrasesData.length;
                 }, 800);
             }
-            next();
-            setInterval(next, 4000);
+
+            showNextPhrase();
+            setInterval(showNextPhrase, 4000);
         }
 
-        function createHeart() {
-            const h = document.createElement('div');
-            h.className = 'falling-heart';
-            h.innerText = ['❤️','💖','✨'][Math.floor(Math.random()*3)];
-            h.style.left = Math.random()*100+'vw';
-            h.style.fontSize = (Math.random()*20+10)+'px';
-            document.getElementById('main-bg').appendChild(h);
-            setTimeout(()=>h.remove(), 4000);
-        }
-
+        // ABRIR CARTA
         cardContainer.addEventListener('click', function() {
             if(!isCardOpen) {
                 this.classList.add('open');
@@ -383,20 +528,36 @@
                 
                 if (!hasBackgroundStarted) {
                     music.volume = 1.0;
-                    music.play().catch(e => console.log("Audio error:", e));
+                    music.play().catch(e => console.log("Error audio:", e));
+                    
                     startPhrasesLoop();
                     startSlideshowLoop();
-                    setInterval(createHeart, 500);
+                    heartsInterval = setInterval(createHeart, 400);
                     hasBackgroundStarted = true; 
-                    
-                    // Mostrar botón ? a los 3 seg
-                    setTimeout(() => mysteryBtn.classList.add('show'), 3000);
+
+                    // MOSTRAR BOTÓN MISTERIOSO DESPUÉS DE 3 SEGUNDOS
+                    setTimeout(() => {
+                        mysteryBtn.classList.add('show');
+                    }, 3000);
                 }
             }
         });
 
+        // NAVEGACIÓN
         function goToSurprise() {
             window.location.href = 'floresamarillas_023.html';
+        }
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('falling-heart');
+            const heartTypes = ['❤️', '💖', '✨', '💘'];
+            heart.innerText = heartTypes[Math.floor(Math.random() * heartTypes.length)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+            heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+            document.getElementById('main-bg').appendChild(heart);
+            setTimeout(() => { heart.remove(); }, 6000);
         }
     </script>
 </body>
