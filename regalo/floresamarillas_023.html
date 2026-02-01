@@ -30,7 +30,7 @@
             font-family: 'Arial', sans-serif;
         }
 
-        /* --- PANTALLA DE INICIO (Sin espera) --- */
+        /* --- PANTALLA DE INICIO (OVERLAY) --- */
         #overlay {
             position: fixed;
             top: 0;
@@ -47,7 +47,7 @@
         }
         
         #play-btn {
-            padding: 18px 45px; /* Botón grande y cómodo */
+            padding: 18px 45px;
             background: linear-gradient(45deg, #fddd25, #f5af19);
             color: #4a3b00;
             border: none;
@@ -98,8 +98,12 @@
             transform: translateY(0);
         }
 
+        /* Ajuste para que el texto no choque con la flor grande en móvil */
         @media only screen and (max-width: 600px) {
             #phrases { font-size: 2.2rem; }
+            #lyrics-container {
+                top: 18%; /* Subimos más el texto */
+            }
         }
 
         /* --- LLUVIA INTENSA --- */
@@ -130,10 +134,18 @@
             100% { transform: translateY(110vh) rotate(20deg); opacity: 0; }
         }
 
-        /* --- ESTILOS DE LA FLOR (INTACTOS) --- */
+        /* --- ESTILOS DE LA FLOR --- */
         .night { position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 100%; height: 100%; background-image: radial-gradient(ellipse at top, transparent 0%, var(--dark-color)), radial-gradient(ellipse at bottom, var(--dark-color), rgba(145, 233, 255, 0.1)); z-index: -1; }
+        
+        /* AQUÍ ESTÁ EL CAMBIO PRINCIPAL PARA EL TAMAÑO */
         .flowers { position: relative; transform: scale(0.9); padding-bottom: 10vmin; }
-        @media only screen and (max-width: 600px) { .flowers { transform: scale(0.65); padding-bottom: 15vh; } }
+        @media only screen and (max-width: 600px) { 
+            .flowers { 
+                transform: scale(1.15); /* AUMENTADO de 0.65 a 1.15 para que sea grande */
+                padding-bottom: 5vh;   /* Ajustado para que no se salga por abajo */
+            } 
+        }
+        
         .flower { position: absolute; bottom: 10vmin; transform-origin: bottom center; z-index: 10; --fl-speed: 0.8s; }
         .flower--1 { animation: moving-flower-1 4s linear infinite; } .flower--1 .flower__line { height: 70vmin; animation-delay: 0.3s; } .flower--1 .flower__line__leaf--1 { animation: blooming-leaf-right var(--fl-speed) 1.6s backwards; } .flower--1 .flower__line__leaf--2 { animation: blooming-leaf-right var(--fl-speed) 1.4s backwards; } .flower--1 .flower__line__leaf--3 { animation: blooming-leaf-left var(--fl-speed) 1.2s backwards; } .flower--1 .flower__line__leaf--4 { animation: blooming-leaf-left var(--fl-speed) 1.0s backwards; } .flower--1 .flower__line__leaf--5 { animation: blooming-leaf-right var(--fl-speed) 1.8s backwards; } .flower--1 .flower__line__leaf--6 { animation: blooming-leaf-left var(--fl-speed) 2s backwards; }
         .flower--2 { left: 50%; transform: rotate(20deg); animation: moving-flower-2 4s linear infinite; } .flower--2 .flower__line { height: 60vmin; animation-delay: 0.6s; } .flower--2 .flower__line__leaf--1 { animation: blooming-leaf-right var(--fl-speed) 1.9s backwards; } .flower--2 .flower__line__leaf--2 { animation: blooming-leaf-right var(--fl-speed) 1.7s backwards; } .flower--2 .flower__line__leaf--3 { animation: blooming-leaf-left var(--fl-speed) 1.5s backwards; } .flower--2 .flower__line__leaf--4 { animation: blooming-leaf-left var(--fl-speed) 1.3s backwards; }
@@ -196,7 +208,7 @@
         <button id="play-btn">🌻 TOCAR PARA VER 🌻</button>
     </div>
 
-    <audio id="audio" src="10.mpeg" preload="auto"></audio>
+    <audio id="audio" src="10.MPEG" preload="auto"></audio>
 
     <div id="lyrics-container">
         <div id="phrases"></div>
@@ -236,8 +248,13 @@
             overlay.style.opacity = '0';
             setTimeout(() => { overlay.style.display = 'none'; }, 1000);
 
-            // Reproducir música
-            audio.play().catch(e => console.log("Error de audio:", e));
+            // Reproducir música con manejo de errores
+            audio.play().then(() => {
+                console.log("Audio reproduciendo");
+            }).catch(e => {
+                console.log("Error audio:", e);
+                // Opcional: alert("Toca la pantalla para activar el sonido");
+            });
 
             // Iniciar efectos
             createLoveRain(); 
